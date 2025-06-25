@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp"
+    app:cardBackgroundColor="@color/surface">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/ivPlant"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/plant_happy_aloe"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:id="@+id/tvPlantName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Alojka"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvPlantMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mmmm, i ja sam puna vode!"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:maxLines="2"
+            android:ellipsize="end" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary colors -->
+    <color name="primary">#2E7D32</color>
+    <color name="primary_dark">#1B5E20</color>
+    <color name="primary_light">#66BB6A</color>
+    <color name="accent">#FF9800</color>
+
+    <!-- Background colors -->
+    <color name="background_primary">#F1F8E9</color>
+    <color name="surface">#FFFFFF</color>
+
+    <!-- Text colors -->
+    <color name="text_primary">#1B5E20</color>
+    <color name="text_secondary">#4CAF50</color>
+    <color name="text_on_primary">#FFFFFF</color>
+
+    <!-- Status colors -->
+    <color name="error">#D32F2F</color>
+    <color name="success">#388E3C</color>
+    <color name="warning">#F57C00</color>
+
+    <!-- Plant colors -->
+    <color name="plant_happy">#4CAF50</color>
+    <color name="plant_sad">#FF5722</color>
+    <color name="plant_neutral">#9E9E9E</color>
+
+    <!-- Button colors -->
+    <color name="button_text_primary">#FFFFFF</color>
+    <color name="button_text_secondary">#2E7D32</color>
+</resources>

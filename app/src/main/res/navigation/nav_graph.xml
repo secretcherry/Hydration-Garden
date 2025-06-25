@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/dashboardFragment">
+
+    <activity
+        android:id="@+id/dashboardActivity"
+        android:name="com.example.hydrationgarden.DashboardActivity"
+        android:label="Dashboard"
+        tools:layout="@layout/activity_dashboard" />
+
+    <activity
+        android:id="@+id/gardenActivity"
+        android:name="com.example.hydrationgarden.GardenActivity"
+        android:label="Garden"
+        tools:layout="@layout/activity_garden" />
+
+    <activity
+        android:id="@+id/statsActivity"
+        android:name="com.example.hydrationgarden.StatsActivity"
+        android:label="Statistics"
+        tools:layout="@layout/activity_stats" />
+
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.example.hydrationgarden.fragments.DashboardFragment"
+        android:label="Dashboard" />
+
+</navigation>

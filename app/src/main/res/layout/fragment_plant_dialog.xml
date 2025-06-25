@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    >
+
+    <ImageView
+        android:id="@+id/ivPlantLarge"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_gravity="center"
+        android:src="@drawable/plant_happy_aloe"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/tvPlantName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Alojka"
+        android:textColor="@color/text_primary"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvPlantType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Aloe Vera"
+        android:textColor="@color/text_secondary"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/tvMoodIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sretna"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/tvPlantMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mmmm, i ja sam puna vode!"
+        android:textColor="@color/text_primary"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"
+        android:padding="12dp" />
+
+    <TextView
+        android:id="@+id/tvAdvice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nastavi ovako! Tvoja biljka je zadovoljna količinom vode."
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnClose"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:backgroundTint="@color/primary"
+        android:text="Zatvori"
+        android:textColor="@android:color/white"
+        app:cornerRadius="12dp" />
+
+</LinearLayout>

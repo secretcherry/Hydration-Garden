@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "562987296883",
+    "project_id": "hydrationgarden",
+    "storage_bucket": "hydrationgarden.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:562987296883:android:9649c235afef3cbd5d6206",
+        "android_client_info": {
+          "package_name": "com.example.hydrationgarden"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGDPBtGq14Qcx3x3G1cTNotN4UMFgg3Hk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

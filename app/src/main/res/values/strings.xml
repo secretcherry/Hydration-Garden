@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hydration Garden</string>
+    <string name="login">Prijavi se</string>
+    <string name="register">Registriraj se</string>
+    <string name="email">Email</string>
+    <string name="password">Lozinka</string>
+    <string name="name">Ime</string>
+    <string name="confirm_password">Potvrdi lozinku</string>
+    <string name="welcome">Dobrodošao!</string>
+    <string name="daily_water_intake">Današnji unos vode</string>
+    <string name="your_virtual_garden">Tvoj virtualni vrt</string>
+    <string name="add_water">Dodaj vodu</string>
+    <string name="ml">ml</string>
+    <string name="of">od</string>
+    <string name="home">Početna</string>
+    <string name="garden">Vrt</string>
+    <string name="statistics">Statistike</string>
+    <string name="sign_out">Odjavi se</string>
+    <string name="water_amount">Količina vode (ml)</string>
+    <string name="add">Dodaj</string>
+    <string name="cancel">Odustani</string>
+
+    <string name="aloe_happy">Mmmm, i ja sam puna vode!</string>
+    <string name="aloe_sad">Mene si zaboravio kao i vodu.</string>
+    <string name="cactus_happy">Ja mogu preživjeti, ali ti trebaš vodu!</string>
+    <string name="cactus_sad">Čак i ja trebam vodu ponekad.</string>
+
+    <string name="notification_title">Vrijeme za vodu!</string>
+    <string name="notification_text">Tvoje biljke te pozivaju na gutljaj vode</string>
+
+    <string name="error_email_empty">Email je obavezan</string>
+    <string name="error_password_empty">Lozinka je obavezna</string>
+    <string name="error_name_empty">Ime je obavezno</string>
+    <string name="error_passwords_dont_match">Lozinke se ne poklapaju</string>
+    <string name="error_login_failed">Greška pri prijavi</string>
+    <string name="error_register_failed">Greška pri registraciji</string>
+    <string name="error_add_water_failed">Greška pri dodavanju vode</string>
+
+    <string name="water_added_success">Dodano %d ml vode!</string>
+    <string name="goal_achieved">Čestitamo! Postigao si dnevni cilj!</string>
+</resources>
