@@ -63,11 +63,7 @@ public class PlantAdapter extends RecyclerView.Adapter<PlantAdapter.PlantViewHol
 
             ivPlant.setImageResource(plant.getCurrentImageResId());
 
-            if (plant.isHappy()) {
-                itemView.setBackgroundColor(0xFFFFFFFF);
-            } else {
-                itemView.setBackgroundColor(0xFFFFFFFF);
-            }
+
 
             itemView.setOnClickListener(v -> {
                 if (onPlantClickListener != null) {

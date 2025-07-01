@@ -12,38 +12,38 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:gravity="center">
+        android:padding="16dp">
 
         <ImageView
             android:id="@+id/ivPlant"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:src="@drawable/plant_happy_aloe"
-            android:layout_marginBottom="12dp" />
+            android:layout_marginBottom="12dp"
+            android:src="@drawable/plant_happy_aloe" />
 
         <TextView
             android:id="@+id/tvPlantName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"
             android:text="Alojka"
             android:textColor="@color/text_primary"
             android:textSize="16sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="8dp" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvPlantMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Mmmm, i ja sam puna vode!"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp"
+            android:ellipsize="end"
             android:gravity="center"
             android:maxLines="2"
-            android:ellipsize="end" />
+            android:text="Mmmm, i ja sam puna vode!"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp" />
 
     </LinearLayout>
 
