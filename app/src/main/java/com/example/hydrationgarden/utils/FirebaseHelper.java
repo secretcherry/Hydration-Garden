@@ -31,7 +31,9 @@ public class FirebaseHelper {
 
     public String getCurrentUserId() {
         FirebaseUser user = auth.getCurrentUser();
-        return user != null ? user.getUid() : null;
+        String userId = user != null ? user.getUid() : null;
+        Log.d("FirebaseHelper", "Current user ID: " + userId);
+        return userId;
     }
 
     public CompletableFuture<String> registerUser(String email, String password, String name) {
@@ -53,10 +55,17 @@ public class FirebaseHelper {
 
                             db.collection("users").document(firebaseUser.getUid())
                                     .set(userData)
-                                    .addOnSuccessListener(aVoid -> future.complete(firebaseUser.getUid()))
-                                    .addOnFailureListener(future::completeExceptionally);
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d("FirebaseHelper", "User document created successfully");
+                                        future.complete(firebaseUser.getUid());
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e("FirebaseHelper", "Error creating user document", e);
+                                        future.completeExceptionally(e);
+                                    });
                         }
                     } else {
+                        Log.e("FirebaseHelper", "Registration failed", task.getException());
                         future.completeExceptionally(task.getException());
                     }
                 });
@@ -72,12 +81,15 @@ public class FirebaseHelper {
                     if (task.isSuccessful()) {
                         FirebaseUser user = auth.getCurrentUser();
                         if (user != null) {
+                            Log.d("FirebaseHelper", "Login successful for user: " + user.getUid());
                             // Update last login
                             db.collection("users").document(user.getUid())
                                     .update("lastLoginAt", Timestamp.now());
+
                             future.complete(user.getUid());
                         }
                     } else {
+                        Log.e("FirebaseHelper", "Login failed", task.getException());
                         future.completeExceptionally(task.getException());
                     }
                 });
@@ -105,10 +117,18 @@ public class FirebaseHelper {
         intakeData.put("timestamp", Timestamp.now());
         intakeData.put("createdAt", Timestamp.now());
 
+        Log.d("FirebaseHelper", "Adding water intake: " + amount + "ml for user: " + userId + " on date: " + today);
+
         db.collection("water_intake").document(intakeId)
                 .set(intakeData)
-                .addOnSuccessListener(aVoid -> future.complete(intakeId))
-                .addOnFailureListener(future::completeExceptionally);
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("FirebaseHelper", "Water intake added successfully: " + amount + "ml");
+                    future.complete(intakeId);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FirebaseHelper", "Error adding water intake", e);
+                    future.completeExceptionally(e);
+                });
 
         return future;
     }
@@ -118,11 +138,15 @@ public class FirebaseHelper {
         String userId = getCurrentUserId();
 
         if (userId == null) {
-            future.completeExceptionally(new Exception("User not logged in"));
+            Log.w("FirebaseHelper", "User not logged in for getTodayWaterIntake");
+            future.complete(0);
             return future;
         }
 
         String today = dateFormat.format(new Date());
+        Log.d("FirebaseHelper", "=== GET TODAY WATER INTAKE ===");
+        Log.d("FirebaseHelper", "User ID: " + userId);
+        Log.d("FirebaseHelper", "Today date: " + today);
 
         db.collection("water_intake")
                 .whereEqualTo("userId", userId)
@@ -130,15 +154,35 @@ public class FirebaseHelper {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     int totalAmount = 0;
+                    int documentCount = queryDocumentSnapshots.size();
+
+                    Log.d("FirebaseHelper", "Found " + documentCount + " water intake records for today");
+
                     for (com.google.firebase.firestore.QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         Long amount = document.getLong("amount");
+                        String docDate = document.getString("date");
+                        String docUserId = document.getString("userId");
+
+                        Log.d("FirebaseHelper", "Document ID: " + document.getId());
+                        Log.d("FirebaseHelper", "  Amount: " + amount);
+                        Log.d("FirebaseHelper", "  Date: " + docDate);
+                        Log.d("FirebaseHelper", "  UserId: " + docUserId);
+                        Log.d("FirebaseHelper", "  UserId matches: " + userId.equals(docUserId));
+                        Log.d("FirebaseHelper", "  Date matches: " + today.equals(docDate));
+
                         if (amount != null) {
                             totalAmount += amount.intValue();
+                            Log.d("FirebaseHelper", "Adding amount: " + amount + "ml, total now: " + totalAmount);
                         }
                     }
+
+                    Log.d("FirebaseHelper", "=== FINAL TODAY TOTAL: " + totalAmount + "ml ===");
                     future.complete(totalAmount);
                 })
-                .addOnFailureListener(future::completeExceptionally);
+                .addOnFailureListener(e -> {
+                    Log.e("FirebaseHelper", "Error getting today water intake", e);
+                    future.complete(0);
+                });
 
         return future;
     }
@@ -148,9 +192,12 @@ public class FirebaseHelper {
         String userId = getCurrentUserId();
 
         if (userId == null) {
+            Log.e("FirebaseHelper", "Cannot get user - not logged in");
             future.completeExceptionally(new Exception("User not logged in"));
             return future;
         }
+
+        Log.d("FirebaseHelper", "Getting user data for: " + userId);
 
         db.collection("users").document(userId).get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -163,103 +210,17 @@ public class FirebaseHelper {
                         Long dailyGoal = documentSnapshot.getLong("dailyGoal");
                         user.setDailyGoal(dailyGoal != null ? dailyGoal.intValue() : 2000);
 
+                        Log.d("FirebaseHelper", "User loaded successfully: " + user.getName() + ", goal: " + user.getDailyGoal());
                         future.complete(user);
                     } else {
+                        Log.e("FirebaseHelper", "User document not found for ID: " + userId);
                         future.completeExceptionally(new Exception("User document not found"));
                     }
                 })
-                .addOnFailureListener(future::completeExceptionally);
-
-        return future;
-    }
-    public CompletableFuture<Void> createUserStats(String userId) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-
-        Map<String, Object> statsData = new HashMap<>();
-        statsData.put("userId", userId);
-        statsData.put("totalWaterThisWeek", 0);
-        statsData.put("totalWaterThisMonth", 0);
-        statsData.put("longestStreak", 0);
-        statsData.put("currentStreak", 0);
-        statsData.put("daysGoalAchieved", 0);
-        statsData.put("lastUpdated", Timestamp.now());
-
-        db.collection("user_stats").document(userId)
-                .set(statsData)
-                .addOnSuccessListener(aVoid -> future.complete(null))
-                .addOnFailureListener(future::completeExceptionally);
-
-        return future;
-    }
-
-    public CompletableFuture<Map<String, Object>> getUserStats() {
-        CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
-        String userId = getCurrentUserId();
-
-        if (userId == null) {
-            future.completeExceptionally(new Exception("User not logged in"));
-            return future;
-        }
-
-        db.collection("user_stats").document(userId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        future.complete(documentSnapshot.getData());
-                    } else {
-                        // Create stats if they don't exist
-                        createUserStats(userId).thenRun(() -> {
-                            Map<String, Object> defaultStats = new HashMap<>();
-                            defaultStats.put("totalWaterThisWeek", 0);
-                            defaultStats.put("totalWaterThisMonth", 0);
-                            defaultStats.put("longestStreak", 0);
-                            defaultStats.put("currentStreak", 0);
-                            defaultStats.put("daysGoalAchieved", 0);
-                            future.complete(defaultStats);
-                        });
-                    }
-                })
-                .addOnFailureListener(future::completeExceptionally);
-
-        return future;
-    }
-
-
-    public CompletableFuture<Void> ensureUserStatsExist() {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        String userId = getCurrentUserId();
-
-        if (userId == null) {
-            future.completeExceptionally(new Exception("User not logged in"));
-            return future;
-        }
-
-        // Provjeri postoji li user_stats dokument
-        db.collection("user_stats").document(userId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (!documentSnapshot.exists()) {
-                        // Kreiraj user_stats ako ne postoji
-                        Map<String, Object> statsData = new HashMap<>();
-                        statsData.put("userId", userId);
-                        statsData.put("totalWaterThisWeek", 0);
-                        statsData.put("totalWaterThisMonth", 0);
-                        statsData.put("longestStreak", 0);
-                        statsData.put("currentStreak", 0);
-                        statsData.put("daysGoalAchieved", 0);
-                        statsData.put("lastUpdated", Timestamp.now());
-
-                        db.collection("user_stats").document(userId)
-                                .set(statsData)
-                                .addOnSuccessListener(aVoid -> {
-                                    Log.d("FirebaseHelper", "User stats created successfully");
-                                    future.complete(null);
-                                })
-                                .addOnFailureListener(future::completeExceptionally);
-                    } else {
-                        Log.d("FirebaseHelper", "User stats already exist");
-                        future.complete(null);
-                    }
-                })
-                .addOnFailureListener(future::completeExceptionally);
+                .addOnFailureListener(e -> {
+                    Log.e("FirebaseHelper", "Error getting user", e);
+                    future.completeExceptionally(e);
+                });
 
         return future;
     }
@@ -269,51 +230,93 @@ public class FirebaseHelper {
         String userId = getCurrentUserId();
 
         if (userId == null) {
+            Log.e("FirebaseHelper", "Cannot update goal - user not logged in");
             future.completeExceptionally(new Exception("User not logged in"));
             return future;
         }
 
-        db.collection("users").document(userId)
-                .update("dailyGoal", newGoal)
-                .addOnSuccessListener(aVoid -> future.complete(null))
-                .addOnFailureListener(future::completeExceptionally);
+        Log.d("FirebaseHelper", "Updating daily goal to " + newGoal + " for user: " + userId);
+
+        // Prvo provjeri postoji li dokument
+        db.collection("users").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Dokument postoji, ažuriraj ga
+                        db.collection("users").document(userId)
+                                .update("dailyGoal", newGoal)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("FirebaseHelper", "Daily goal updated successfully to: " + newGoal);
+                                    future.complete(null);
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("FirebaseHelper", "Error updating daily goal", e);
+                                    future.completeExceptionally(e);
+                                });
+                    } else {
+                        Log.e("FirebaseHelper", "User document does not exist, cannot update goal");
+                        future.completeExceptionally(new Exception("User document not found"));
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FirebaseHelper", "Error checking user document existence", e);
+                    future.completeExceptionally(e);
+                });
 
         return future;
     }
-    public void signOut() {
-        auth.signOut();
-    }
+
     public CompletableFuture<Integer> getWeeklyWaterIntake() {
         CompletableFuture<Integer> future = new CompletableFuture<>();
         String userId = getCurrentUserId();
 
         if (userId == null) {
+            Log.w("FirebaseHelper", "User not logged in for getWeeklyWaterIntake");
             future.complete(0);
             return future;
         }
 
-        // Get date 7 days ago
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, -7);
-        String weekAgo = dateFormat.format(calendar.getTime());
+        Log.d("FirebaseHelper", "=== GET WEEKLY WATER INTAKE (NO INDEX) ===");
+        Log.d("FirebaseHelper", "User ID: " + userId);
 
+        // Koristi samo filter po userId i obradi datume u kodu
         db.collection("water_intake")
                 .whereEqualTo("userId", userId)
-                .whereGreaterThanOrEqualTo("date", weekAgo)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     int totalAmount = 0;
+                    int documentCount = queryDocumentSnapshots.size();
+                    int weeklyCount = 0;
+
+                    // Izračunaj datum prije 7 dana
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.add(Calendar.DAY_OF_YEAR, -6); // -6 da uključimo i današnji dan = 7 dana ukupno
+                    String weekStartDate = dateFormat.format(calendar.getTime());
+                    String today = dateFormat.format(new Date());
+
+                    Log.d("FirebaseHelper", "Found " + documentCount + " total water records");
+                    Log.d("FirebaseHelper", "Week start date: " + weekStartDate);
+                    Log.d("FirebaseHelper", "Today date: " + today);
+
                     for (com.google.firebase.firestore.QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        String date = document.getString("date");
                         Long amount = document.getLong("amount");
-                        if (amount != null) {
-                            totalAmount += amount.intValue();
+
+                        if (date != null && amount != null) {
+                            // Provjeri je li datum u tjednom rasponu
+                            if (date.compareTo(weekStartDate) >= 0 && date.compareTo(today) <= 0) {
+                                totalAmount += amount.intValue();
+                                weeklyCount++;
+                                Log.d("FirebaseHelper", "Weekly record: " + date + " = " + amount + "ml, total now: " + totalAmount);
+                            }
                         }
                     }
+
+                    Log.d("FirebaseHelper", "=== FINAL WEEKLY TOTAL: " + totalAmount + "ml from " + weeklyCount + " records ===");
                     future.complete(totalAmount);
                 })
                 .addOnFailureListener(e -> {
                     Log.e("FirebaseHelper", "Error getting weekly intake", e);
-                    future.complete(0); // Return 0 on error
+                    future.complete(0);
                 });
 
         return future;
@@ -324,35 +327,128 @@ public class FirebaseHelper {
         String userId = getCurrentUserId();
 
         if (userId == null) {
+            Log.w("FirebaseHelper", "User not logged in for getMonthlyWaterIntake");
             future.complete(0);
             return future;
         }
 
-        // Get date 30 days ago
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, -30);
-        String monthAgo = dateFormat.format(calendar.getTime());
+        Log.d("FirebaseHelper", "=== GET MONTHLY WATER INTAKE (NO INDEX) ===");
+        Log.d("FirebaseHelper", "User ID: " + userId);
 
+        // Koristi samo filter po userId i obradi datume u kodu
         db.collection("water_intake")
                 .whereEqualTo("userId", userId)
-                .whereGreaterThanOrEqualTo("date", monthAgo)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     int totalAmount = 0;
+                    int documentCount = queryDocumentSnapshots.size();
+                    int monthlyCount = 0;
+
+                    // Izračunaj datum prije 30 dana
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.add(Calendar.DAY_OF_YEAR, -29); // -29 da uključimo i današnji dan = 30 dana ukupno
+                    String monthStartDate = dateFormat.format(calendar.getTime());
+                    String today = dateFormat.format(new Date());
+
+                    Log.d("FirebaseHelper", "Found " + documentCount + " total water records");
+                    Log.d("FirebaseHelper", "Month start date: " + monthStartDate);
+                    Log.d("FirebaseHelper", "Today date: " + today);
+
                     for (com.google.firebase.firestore.QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        String date = document.getString("date");
                         Long amount = document.getLong("amount");
-                        if (amount != null) {
-                            totalAmount += amount.intValue();
+
+                        if (date != null && amount != null) {
+                            // Provjeri je li datum u mjesečnom rasponu
+                            if (date.compareTo(monthStartDate) >= 0 && date.compareTo(today) <= 0) {
+                                totalAmount += amount.intValue();
+                                monthlyCount++;
+                                Log.d("FirebaseHelper", "Monthly record: " + date + " = " + amount + "ml, total now: " + totalAmount);
+                            }
                         }
                     }
+
+                    Log.d("FirebaseHelper", "=== FINAL MONTHLY TOTAL: " + totalAmount + "ml from " + monthlyCount + " records ===");
                     future.complete(totalAmount);
                 })
                 .addOnFailureListener(e -> {
                     Log.e("FirebaseHelper", "Error getting monthly intake", e);
-                    future.complete(0); // Return 0 on error
+                    future.complete(0);
                 });
 
         return future;
     }
 
+    public CompletableFuture<Integer> getBestDayWaterIntake() {
+        CompletableFuture<Integer> future = new CompletableFuture<>();
+        String userId = getCurrentUserId();
+
+        if (userId == null) {
+            Log.w("FirebaseHelper", "User not logged in for getBestDayWaterIntake");
+            future.complete(0);
+            return future;
+        }
+
+        Log.d("FirebaseHelper", "=== GET BEST DAY WATER INTAKE (NO INDEX) ===");
+        Log.d("FirebaseHelper", "User ID: " + userId);
+
+        // Koristi samo filter po userId i obradi datume u kodu
+        db.collection("water_intake")
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    Map<String, Integer> dailyTotals = new HashMap<>();
+                    int documentCount = queryDocumentSnapshots.size();
+
+                    // Izračunaj datum prije 30 dana za najbolji dan
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.add(Calendar.DAY_OF_YEAR, -30);
+                    String monthStartDate = dateFormat.format(calendar.getTime());
+                    String today = dateFormat.format(new Date());
+
+                    Log.d("FirebaseHelper", "Found " + documentCount + " total documents for best day calculation");
+                    Log.d("FirebaseHelper", "Search from: " + monthStartDate + " to: " + today);
+
+                    // Group by date and sum amounts
+                    for (com.google.firebase.firestore.QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        String date = document.getString("date");
+                        Long amount = document.getLong("amount");
+
+                        if (date != null && amount != null) {
+                            // Provjeri je li datum u rasponu zadnjih 30 dana
+                            if (date.compareTo(monthStartDate) >= 0 && date.compareTo(today) <= 0) {
+                                int currentTotal = dailyTotals.getOrDefault(date, 0);
+                                int newTotal = currentTotal + amount.intValue();
+                                dailyTotals.put(date, newTotal);
+                                Log.d("FirebaseHelper", "Date " + date + ": " + currentTotal + " + " + amount + " = " + newTotal);
+                            }
+                        }
+                    }
+
+                    // Find maximum daily total
+                    int bestDay = 0;
+                    String bestDate = "";
+                    for (Map.Entry<String, Integer> entry : dailyTotals.entrySet()) {
+                        if (entry.getValue() > bestDay) {
+                            bestDay = entry.getValue();
+                            bestDate = entry.getKey();
+                        }
+                        Log.d("FirebaseHelper", "Daily total for " + entry.getKey() + ": " + entry.getValue() + "ml");
+                    }
+
+                    Log.d("FirebaseHelper", "=== BEST DAY: " + bestDate + " with " + bestDay + "ml ===");
+                    future.complete(bestDay);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FirebaseHelper", "Error getting best day intake", e);
+                    future.complete(0);
+                });
+
+        return future;
+    }
+
+    public void signOut() {
+        auth.signOut();
+        Log.d("FirebaseHelper", "User signed out");
+    }
 }

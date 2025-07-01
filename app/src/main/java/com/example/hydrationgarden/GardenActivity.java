@@ -88,23 +88,36 @@ public class GardenActivity extends AppCompatActivity implements PlantAdapter.On
 
         firebaseHelper.getTodayWaterIntake()
                 .thenAccept(intake -> {
-                    Log.d("GardenActivity", "Firebase returned intake: " + intake + "ml");
+                    Log.d("GardenActivity", "✅ Firebase returned INTAKE: " + intake + "ml");
 
                     firebaseHelper.getUser()
                             .thenAccept(user -> {
-                                Log.d("GardenActivity", "Firebase returned goal: " + user.getDailyGoal() + "ml");
+                                Log.d("GardenActivity", "✅ Firebase returned GOAL: " + user.getDailyGoal() + "ml");
 
                                 runOnUiThread(() -> {
                                     currentIntake = intake;
                                     dailyGoal = user.getDailyGoal();
                                     isGoalAchieved = currentIntake >= dailyGoal;
 
-                                    Log.d("GardenActivity", "FINAL: " + currentIntake + "/" + dailyGoal + " = " + isGoalAchieved);
+                                    Log.d("GardenActivity", " FINAL CALCULATION:");
+                                    Log.d("GardenActivity", "   Current intake: " + currentIntake + "ml");
+                                    Log.d("GardenActivity", "   Daily goal: " + dailyGoal + "ml");
+                                    Log.d("GardenActivity", "   Goal achieved: " + isGoalAchieved);
 
                                     updatePlantsHappiness();
                                     updateHeaderMessage();
                                 });
+                            })
+                            .exceptionally(throwable -> {
+                                Log.e("GardenActivity", "ERROR loading user: " + throwable.getMessage());
+                                throwable.printStackTrace();
+                                return null;
                             });
+                })
+                .exceptionally(throwable -> {
+                    Log.e("GardenActivity", "ERROR loading water intake: " + throwable.getMessage());
+                    throwable.printStackTrace();
+                    return null;
                 });
     }
 

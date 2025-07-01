@@ -24,14 +24,20 @@ public class DashboardActivity extends AppCompatActivity {
         binding = ActivityDashboardBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        Log.d("Dashboard", "DashboardActivity created");
+
         firebaseHelper = new FirebaseHelper();
 
-        firebaseHelper.ensureUserStatsExist()
-                .thenRun(() -> Log.d("Dashboard", "User stats ensured"))
-                .exceptionally(throwable -> {
-                    Log.e("Dashboard", "Error ensuring user stats", throwable);
-                    return null;
-                });
+        // Provjeri je li korisnik ulogiran
+        if (firebaseHelper.getCurrentUserId() == null) {
+            Log.w("Dashboard", "No user logged in, redirecting to login");
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
+        // Debug trenutnog korisnika
+        debugCurrentUser();
 
         setupBottomNavigation();
         setupClickListeners();
@@ -39,18 +45,37 @@ public class DashboardActivity extends AppCompatActivity {
         loadTodayIntake();
     }
 
+    private void debugCurrentUser() {
+        String userId = firebaseHelper.getCurrentUserId();
+        Log.d("Dashboard", "=== USER DEBUG INFO ===");
+        Log.d("Dashboard", "Current User ID: " + userId);
+
+        if (userId != null) {
+            // Provjeri postoji li user dokument
+            firebaseHelper.getUser()
+                    .thenAccept(user -> {
+                        Log.d("Dashboard", "User document found: " + user.getName() + ", goal: " + user.getDailyGoal());
+                    })
+                    .exceptionally(throwable -> {
+                        Log.e("Dashboard", "User document NOT found: " + throwable.getMessage());
+                        return null;
+                    });
+        }
+    }
+
     private void setupBottomNavigation() {
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
-
-                return true;
+                return true; // Already on home
             } else if (itemId == R.id.nav_garden) {
+                Log.d("Dashboard", "Navigating to Garden");
                 startActivity(new Intent(this, GardenActivity.class));
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 finish();
                 return true;
             } else if (itemId == R.id.nav_stats) {
+                Log.d("Dashboard", "Navigating to Stats");
                 startActivity(new Intent(this, StatsActivity.class));
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 finish();
@@ -64,14 +89,18 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        binding.btnAddWater.setOnClickListener(v -> showWaterInputDialog());
+        binding.btnAddWater.setOnClickListener(v -> {
+            Log.d("Dashboard", "Add water button clicked");
+            showWaterInputDialog();
+        });
 
-        // DODAJ OVO:
         binding.btnSettings.setOnClickListener(v -> {
+            Log.d("Dashboard", "Settings button clicked");
             startActivity(new Intent(this, SettingsActivity.class));
         });
 
         binding.btnSignOut.setOnClickListener(v -> {
+            Log.d("Dashboard", "Sign out button clicked");
             firebaseHelper.signOut();
             startActivity(new Intent(this, LoginActivity.class));
             finish();
@@ -85,8 +114,11 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void addWaterIntake(int amount) {
+        Log.d("Dashboard", "Adding water intake: " + amount + "ml");
+
         firebaseHelper.addWaterIntake(amount)
                 .thenAccept(intakeId -> {
+                    Log.d("Dashboard", "Water intake added successfully with ID: " + intakeId);
                     runOnUiThread(() -> {
                         currentIntake += amount;
                         updateUI();
@@ -102,6 +134,7 @@ public class DashboardActivity extends AppCompatActivity {
                     });
                 })
                 .exceptionally(throwable -> {
+                    Log.e("Dashboard", "Error adding water intake", throwable);
                     runOnUiThread(() -> {
                         Toast.makeText(this,
                                 getString(R.string.error_add_water_failed),
@@ -113,20 +146,21 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void loadUserData() {
         // Postavi default welcome dok se Firebase ne učita
-
         binding.tvWelcome.setText("Dobrodošao!");
 
         String userId = firebaseHelper.getCurrentUserId();
-        Log.d("Dashboard", "Current user ID: " + userId);
+        Log.d("Dashboard", "Loading user data for ID: " + userId);
 
         if (userId == null) {
             Log.e("Dashboard", "User ID is null - user not logged in!");
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
             return;
         }
 
         firebaseHelper.getUser()
                 .thenAccept(user -> {
-                    Log.d("Dashboard", "User loaded successfully: " + user.getName());
+                    Log.d("Dashboard", "User loaded successfully: " + user.getName() + ", goal: " + user.getDailyGoal());
                     runOnUiThread(() -> {
                         dailyGoal = user.getDailyGoal();
                         binding.tvWelcome.setText("Dobrodošao, " + user.getName() + "!");
@@ -136,8 +170,8 @@ public class DashboardActivity extends AppCompatActivity {
                 .exceptionally(throwable -> {
                     Log.e("Dashboard", "Error loading user: " + throwable.getMessage());
                     runOnUiThread(() -> {
-                        // NE PRIKAZUJ Toast grešku - samo logiraj
-                        Log.w("Dashboard", "Using default user data");
+                        // Koristi default vrijednosti i nastavi
+                        Log.w("Dashboard", "Using default user data due to error");
                         binding.tvWelcome.setText("Dobrodošao!");
                         dailyGoal = 2000; // Default goal
                         updateUI();
@@ -151,29 +185,39 @@ public class DashboardActivity extends AppCompatActivity {
 
         firebaseHelper.getTodayWaterIntake()
                 .thenAccept(intake -> {
-                    Log.d("Dashboard", "Dashboard got: " + intake + "ml from Firebase");
+                    Log.d("Dashboard", "Today intake loaded: " + intake + "ml");
                     runOnUiThread(() -> {
                         currentIntake = intake;
                         updateUI();
+                        Log.d("Dashboard", "UI updated with intake: " + currentIntake + "ml");
                     });
                 })
                 .exceptionally(throwable -> {
-                    Log.e("Dashboard", "Dashboard error: " + throwable.getMessage());
+                    Log.e("Dashboard", "Error loading today intake: " + throwable.getMessage());
+                    runOnUiThread(() -> {
+                        // Postavi na 0 i nastavi
+                        currentIntake = 0;
+                        updateUI();
+                    });
                     return null;
                 });
     }
 
     private void updateUI() {
-        int percentage = (currentIntake * 100) / dailyGoal;
+        Log.d("Dashboard", "Updating UI - intake: " + currentIntake + "ml, goal: " + dailyGoal + "ml");
+
+        int percentage = dailyGoal > 0 ? (currentIntake * 100) / dailyGoal : 0;
 
         binding.tvCurrentIntake.setText(currentIntake + getString(R.string.ml));
         binding.tvDailyGoal.setText(getString(R.string.of) + " " + dailyGoal + getString(R.string.ml));
-        binding.progressWater.setProgress(percentage);
-        binding.progressBarLinear.setProgress(percentage);
+        binding.progressWater.setProgress(Math.min(percentage, 100)); // Max 100%
+        binding.progressBarLinear.setProgress(Math.min(percentage, 100));
         binding.tvPercentage.setText(percentage + "%");
 
         boolean isGoalAchieved = currentIntake >= dailyGoal;
         updatePlantPreview(isGoalAchieved);
+
+        Log.d("Dashboard", "UI updated - percentage: " + percentage + "%, goal achieved: " + isGoalAchieved);
     }
 
     private void updatePlantPreview(boolean isHappy) {
@@ -186,11 +230,11 @@ public class DashboardActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d("Dashboard", "onResume called - refreshing data");
         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
-        loadTodayIntake();
+        loadTodayIntake(); // Refresh data when returning to activity
     }
 }

@@ -21,6 +21,10 @@ public class StatsActivity extends AppCompatActivity {
 
         firebaseHelper = new FirebaseHelper();
         setupBottomNavigation();
+
+        // Prikaži loading tekst na početku
+        showLoadingState();
+
         loadStats();
     }
 
@@ -47,104 +51,196 @@ public class StatsActivity extends AppCompatActivity {
         binding.bottomNavigation.setSelectedItemId(R.id.nav_stats);
     }
 
+    private void showLoadingState() {
+        binding.tvTodayIntake.setText("Učitavanje...");
+        binding.tvWeeklyAverage.setText("Učitavanje...");
+        binding.tvBestDay.setText("Učitavanje...");
+        binding.tvDailyGoal.setText("Učitavanje...");
+        binding.tvGoalPercentage.setText("0%");
+        binding.progressGoal.setProgress(0);
+        binding.tvWeeklyData.setText("Učitavanje tjednih podataka...");
+        binding.tvMonthlyData.setText("Učitavanje mjesečnih podataka...");
+    }
+
     private void loadStats() {
         Log.d("StatsActivity", "Starting loadStats");
 
+        // Paralelno učitaj sve podatke
         firebaseHelper.getTodayWaterIntake()
                 .thenAccept(todayIntake -> {
-                    Log.d("StatsActivity", "Today intake: " + todayIntake + "ml");
+                    Log.d("StatsActivity", "Today intake loaded: " + todayIntake + "ml");
 
                     firebaseHelper.getUser()
                             .thenAccept(user -> {
-                                Log.d("StatsActivity", "User loaded for stats");
+                                Log.d("StatsActivity", "User loaded: " + user.getName());
 
-                                // Učitaj PRAVE tjedne/mjesečne podatke
+                                // Paralelno učitaj sve ostale podatke
                                 firebaseHelper.getWeeklyWaterIntake()
                                         .thenAccept(weeklyTotal -> {
+                                            Log.d("StatsActivity", "Weekly total: " + weeklyTotal + "ml");
+
                                             firebaseHelper.getMonthlyWaterIntake()
                                                     .thenAccept(monthlyTotal -> {
-                                                        runOnUiThread(() -> {
-                                                            // Update UI s PRAVIM podacima
-                                                            binding.tvTodayIntake.setText(todayIntake + " ml");
+                                                        Log.d("StatsActivity", "Monthly total: " + monthlyTotal + "ml");
 
-                                                            int weeklyAverage = weeklyTotal / 7;
-                                                            binding.tvWeeklyAverage.setText(weeklyAverage + " ml");
+                                                        firebaseHelper.getBestDayWaterIntake()
+                                                                .thenAccept(bestDay -> {
+                                                                    Log.d("StatsActivity", "Best day: " + bestDay + "ml");
 
-                                                            // Najbolji dan - možeš implementirati kasnije
-                                                            binding.tvBestDay.setText("0 ml"); // Za sada 0
-
-                                                            binding.tvDailyGoal.setText(user.getDailyGoal() + " ml");
-
-                                                            int goalPercentage = (todayIntake * 100) / user.getDailyGoal();
-                                                            binding.progressGoal.setProgress(goalPercentage);
-                                                            binding.tvGoalPercentage.setText(goalPercentage + "%");
-
-                                                            // Update text data s PRAVIM podacima
-                                                            updateWeeklyStats(weeklyTotal);
-                                                            updateMonthlyStats(monthlyTotal);
-
-                                                            Log.d("StatsActivity", "Stats updated with real data");
-                                                        });
+                                                                    // Sada kad imamo sve podatke, ažuriraj UI
+                                                                    runOnUiThread(() -> updateAllStats(todayIntake, user.getDailyGoal(), weeklyTotal, monthlyTotal, bestDay));
+                                                                })
+                                                                .exceptionally(throwable -> {
+                                                                    Log.e("StatsActivity", "Error loading best day: " + throwable.getMessage());
+                                                                    runOnUiThread(() -> updateAllStats(todayIntake, user.getDailyGoal(), weeklyTotal, monthlyTotal, 0));
+                                                                    return null;
+                                                                });
+                                                    })
+                                                    .exceptionally(throwable -> {
+                                                        Log.e("StatsActivity", "Error loading monthly data: " + throwable.getMessage());
+                                                        runOnUiThread(() -> updateAllStats(todayIntake, user.getDailyGoal(), weeklyTotal, 0, 0));
+                                                        return null;
                                                     });
+                                        })
+                                        .exceptionally(throwable -> {
+                                            Log.e("StatsActivity", "Error loading weekly data: " + throwable.getMessage());
+
+                                            // Pokušaj učitati mjesečne podatke i bez tjednih
+                                            firebaseHelper.getMonthlyWaterIntake()
+                                                    .thenAccept(monthlyTotal -> {
+                                                        firebaseHelper.getBestDayWaterIntake()
+                                                                .thenAccept(bestDay -> {
+                                                                    runOnUiThread(() -> updateAllStats(todayIntake, user.getDailyGoal(), 0, monthlyTotal, bestDay));
+                                                                })
+                                                                .exceptionally(bestDayError -> {
+                                                                    runOnUiThread(() -> updateAllStats(todayIntake, user.getDailyGoal(), 0, monthlyTotal, 0));
+                                                                    return null;
+                                                                });
+                                                    })
+                                                    .exceptionally(monthlyError -> {
+                                                        Log.e("StatsActivity", "Error loading monthly data: " + monthlyError.getMessage());
+                                                        runOnUiThread(() -> updateAllStats(todayIntake, user.getDailyGoal(), 0, 0, 0));
+                                                        return null;
+                                                    });
+                                            return null;
                                         });
                             })
                             .exceptionally(throwable -> {
                                 Log.e("StatsActivity", "Error loading user: " + throwable.getMessage());
-                                runOnUiThread(() -> {
-                                    // Pokaži 0 za novog korisnika
-                                    binding.tvTodayIntake.setText("0 ml");
-                                    binding.tvWeeklyAverage.setText("0 ml");
-                                    binding.tvBestDay.setText("0 ml");
-                                    binding.tvDailyGoal.setText("2000 ml");
-                                });
+                                runOnUiThread(() -> updateAllStats(todayIntake, 2000, 0, 0, 0)); // Default goal 2000ml
                                 return null;
                             });
+                })
+                .exceptionally(throwable -> {
+                    Log.e("StatsActivity", "Error loading today intake: " + throwable.getMessage());
+                    runOnUiThread(() -> updateAllStats(0, 2000, 0, 0, 0)); // Sve na 0 ako ne možemo učitati osnovne podatke
+                    return null;
                 });
     }
 
-    private void updateWeeklyStats(int weeklyTotal) {
-        // PRAVI tjedni podaci
-        int weeklyAverage = weeklyTotal / 7;
+    private void updateAllStats(int todayIntake, int dailyGoal, int weeklyTotal, int monthlyTotal, int bestDay) {
+        Log.d("StatsActivity", String.format("Updating UI: today=%d, goal=%d, weekly=%d, monthly=%d, best=%d",
+                todayIntake, dailyGoal, weeklyTotal, monthlyTotal, bestDay));
+
+        // Osnovni podaci
+        binding.tvTodayIntake.setText(todayIntake + " ml");
+        binding.tvDailyGoal.setText(dailyGoal + " ml");
+
+        // Tjedni prosjek
+        int weeklyAverage = weeklyTotal > 0 ? weeklyTotal / 7 : 0;
+        binding.tvWeeklyAverage.setText(weeklyAverage + " ml");
+
+        // Najbolji dan
+        binding.tvBestDay.setText(bestDay + " ml");
+
+        // Postotak cilja
+        int goalPercentage = dailyGoal > 0 ? (todayIntake * 100) / dailyGoal : 0;
+        binding.progressGoal.setProgress(Math.min(goalPercentage, 100)); // Maksimalno 100%
+        binding.tvGoalPercentage.setText(goalPercentage + "%");
+
+        // Tjedni i mjesečni sažetak
+        updateWeeklyStats(weeklyTotal, weeklyAverage, dailyGoal);
+        updateMonthlyStats(monthlyTotal, dailyGoal);
+
+        Log.d("StatsActivity", "UI updated successfully");
+    }
+
+    private void updateWeeklyStats(int weeklyTotal, int weeklyAverage, int dailyGoal) {
+        String statusText;
+        String progressText;
+
+        if (weeklyTotal == 0) {
+            statusText = "Početak putovanja";
+            progressText = "Započni dodavanjem prve količine vode!";
+        } else if (weeklyAverage >= dailyGoal) {
+            statusText = "Odličan tjedan!";
+            progressText = "Postigao si cilj većinu dana";
+        } else if (weeklyAverage >= dailyGoal * 0.7) {
+            statusText = "Dobar napredak";
+            progressText = "Blizu si svakodnevnog cilja";
+        } else {
+            statusText = "Treba poboljšanje";
+            progressText = "Pokušaj piti više vode svaki dan";
+        }
 
         String weeklyData = String.format(
                 "Tjedni podaci:\n" +
                         "• Ukupno: %d ml\n" +
                         "• Dnevni prosjek: %d ml\n" +
-                        "• Dana s ciljem: %s\n" +
-                        "• Napredak: %s",
+                        "• Status: %s\n" +
+                        "• Savjet: %s",
                 weeklyTotal,
                 weeklyAverage,
-                weeklyAverage >= 2000 ? "Većina" : "Treba poboljšanje",
-                weeklyTotal > 0 ? "U tijeku" : "Početak putovanja"
+                statusText,
+                progressText
         );
 
         binding.tvWeeklyData.setText(weeklyData);
     }
 
-    private void updateMonthlyStats(int monthlyTotal) {
-        // PRAVI mjesečni podaci
-        int monthlyAverage = monthlyTotal / 30;
+    private void updateMonthlyStats(int monthlyTotal, int dailyGoal) {
+        int monthlyAverage = monthlyTotal > 0 ? monthlyTotal / 30 : 0;
+
+        String statusText;
+        String motivationText;
+
+        if (monthlyTotal == 0) {
+            statusText = "Početnik";
+            motivationText = "Svaki gutljaj je korak naprijed!";
+        } else if (monthlyAverage >= dailyGoal) {
+            statusText = "Hidracijski heroj!";
+            motivationText = "Nastavi fantastično!";
+        } else if (monthlyAverage >= dailyGoal * 0.8) {
+            statusText = "Odličan napredak";
+            motivationText = "Blizu si savršenstva!";
+        } else if (monthlyAverage >= dailyGoal * 0.6) {
+            statusText = "Dobro napredovanje";
+            motivationText = "Polako ali sigurno!";
+        } else {
+            statusText = "Početne stepenice";
+            motivationText = "Svaki dan je nova prilika!";
+        }
 
         String monthlyData = String.format(
                 "Mjesečni sažetak:\n" +
-                        "Ukupno: %d ml\n" +
-                        "Dnevni prosjek: %d ml\n" +
-                        "Status: %s\n" +
-                        "Motivacija: %s",
+                        "• Ukupno: %d ml\n" +
+                        "• Dnevni prosjek: %d ml\n" +
+                        "• Status: %s\n" +
+                        "• Motivacija: %s",
                 monthlyTotal,
                 monthlyAverage,
-                monthlyAverage >= 2000 ? "Odličan!" : monthlyAverage >= 1500 ? "Dobar" : "Početnik",
-                monthlyTotal > 0 ? "Nastavi tako!" : "Svaki gutljaj je korak naprijed!"
+                statusText,
+                motivationText
         );
 
         binding.tvMonthlyData.setText(monthlyData);
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
         Log.d("StatsActivity", "onResume - refreshing stats");
+        showLoadingState();
         loadStats();
     }
 }
