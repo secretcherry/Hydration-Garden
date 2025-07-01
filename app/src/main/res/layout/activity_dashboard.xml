@@ -40,15 +40,21 @@
                     android:layout_height="50dp"
                     android:layout_marginEnd="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_menu_preferences"
+                    android:src="@drawable/settings"
+                    app:tint="@color/primary"
+                    android:padding="9dp"
+                    android:scaleType="fitCenter"
                     android:contentDescription="Postavke" />
                 <ImageButton
                     android:id="@+id/btnSignOut"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_menu_revert"
-                    android:contentDescription="@string/sign_out" />
+                    android:src="@drawable/baseline_logout_24"
+                    app:tint="@color/primary"
+                    android:padding="9dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="Odjava" />
 
             </LinearLayout>
 
