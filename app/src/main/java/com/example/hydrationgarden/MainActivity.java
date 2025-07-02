@@ -1,36 +1,51 @@
 package com.example.hydrationgarden;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import androidx.appcompat.app.AppCompatDelegate;
+import com.example.hydrationgarden.utils.FirebaseHelper;
 
 public class MainActivity extends AppCompatActivity {
-    private FirebaseAuth auth;
+    private FirebaseHelper firebaseHelper;
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        // Apply theme before calling super.onCreate()
+        applyTheme();
 
-        auth = FirebaseAuth.getInstance();
-        checkUserLoginStatus();
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        firebaseHelper = new FirebaseHelper();
+        prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
+
+        // Splash screen delay
+        new Handler().postDelayed(() -> {
+            checkUserAuthentication();
+        }, 2000);
     }
 
-    private void checkUserLoginStatus() {
-        FirebaseUser currentUser = auth.getCurrentUser();
+    private void applyTheme() {
+        prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
+        boolean isDarkTheme = prefs.getBoolean("dark_theme", false);
 
-        if (currentUser != null) {
-            // Korisnik je već ulogiran, idi na Dashboard
-            Log.d("MainActivity", "User already logged in: " + currentUser.getUid());
+        if (isDarkTheme) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+    }
+
+    private void checkUserAuthentication() {
+        if (firebaseHelper.isUserLoggedIn()) {
             startActivity(new Intent(this, DashboardActivity.class));
         } else {
-            // Korisnik nije ulogiran, idi na Login
-            Log.d("MainActivity", "No user logged in, going to login");
             startActivity(new Intent(this, LoginActivity.class));
         }
-
         finish();
     }
 }

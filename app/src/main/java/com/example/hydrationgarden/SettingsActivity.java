@@ -33,13 +33,19 @@ public class SettingsActivity extends AppCompatActivity {
 
         // Dark theme switch
         binding.switchDarkTheme.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // Save preference
             prefs.edit().putBoolean("dark_theme", isChecked).apply();
 
+            // Apply theme immediately
             if (isChecked) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
             }
+
+            // Show confirmation
+            Toast.makeText(this, isChecked ? "Tamna tema uključena" : "Svijetla tema uključena",
+                    Toast.LENGTH_SHORT).show();
         });
 
         // Daily goal buttons
@@ -56,6 +62,7 @@ public class SettingsActivity extends AppCompatActivity {
                     int customGoal = Integer.parseInt(customGoalStr);
                     if (customGoal >= 500 && customGoal <= 5000) {
                         setDailyGoal(customGoal);
+                        binding.etCustomGoal.setText(""); // Clear input
                     } else {
                         Toast.makeText(this, "Cilj mora biti između 500ml i 5000ml",
                                 Toast.LENGTH_SHORT).show();
@@ -64,6 +71,8 @@ public class SettingsActivity extends AppCompatActivity {
                     Toast.makeText(this, "Unesite valjanu vrijednost",
                             Toast.LENGTH_SHORT).show();
                 }
+            } else {
+                Toast.makeText(this, "Unesite količinu", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -76,9 +85,17 @@ public class SettingsActivity extends AppCompatActivity {
         // Load current daily goal
         firebaseHelper.getUser()
                 .thenAccept(user -> {
+                    if (user != null) {
+                        runOnUiThread(() -> {
+                            binding.tvCurrentGoal.setText("Trenutni cilj: " + user.getDailyGoal() + "ml");
+                        });
+                    }
+                })
+                .exceptionally(throwable -> {
                     runOnUiThread(() -> {
-                        binding.tvCurrentGoal.setText("Trenutni cilj: " + user.getDailyGoal() + "ml");
+                        binding.tvCurrentGoal.setText("Trenutni cilj: 2000ml"); // Default
                     });
+                    return null;
                 });
     }
 
@@ -98,5 +115,11 @@ public class SettingsActivity extends AppCompatActivity {
                     });
                     return null;
                 });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 }

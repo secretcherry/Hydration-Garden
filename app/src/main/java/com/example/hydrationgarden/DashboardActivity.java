@@ -120,8 +120,10 @@ public class DashboardActivity extends AppCompatActivity {
                 .thenAccept(intakeId -> {
                     Log.d("Dashboard", "Water intake added successfully with ID: " + intakeId);
                     runOnUiThread(() -> {
+                        // Odmah ažuriraj UI
                         currentIntake += amount;
                         updateUI();
+
                         Toast.makeText(this,
                                 getString(R.string.water_added_success, amount),
                                 Toast.LENGTH_SHORT).show();
@@ -131,6 +133,9 @@ public class DashboardActivity extends AppCompatActivity {
                                     getString(R.string.goal_achieved),
                                     Toast.LENGTH_LONG).show();
                         }
+
+                        // Refresh podatke iz Firebase-a (cache je invalidiran)
+                        loadTodayIntake();
                     });
                 })
                 .exceptionally(throwable -> {
@@ -233,8 +238,8 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("Dashboard", "onResume called - refreshing data");
+        Log.d("Dashboard", "onResume called - NOT refreshing data to prevent ANR");
         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
-        loadTodayIntake(); // Refresh data when returning to activity
+        // UKLONJEN loadTodayIntake(); - poziva se samo u onCreate() i nakon dodavanja vode
     }
 }

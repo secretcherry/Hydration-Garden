@@ -153,6 +153,7 @@ public class GardenActivity extends AppCompatActivity implements PlantAdapter.On
 
         Log.d("GardenActivity", "Updated header: " + title + " | " + subtitle);
     }
+
     @Override
     public void onPlantClick(Plant plant) {
         Log.d("GardenActivity", "Plant clicked: " + plant.getName());
@@ -163,7 +164,12 @@ public class GardenActivity extends AppCompatActivity implements PlantAdapter.On
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("GardenActivity", "onResume - refreshing data");
+        Log.d("GardenActivity", "onResume - NOT refreshing data to prevent ANR");
+        // UKLONJEN checkTodayGoal(); - poziva se samo u onCreate()
+    }
+
+    public void refreshGardenData() {
+        Log.d("GardenActivity", "Manually refreshing garden data");
         checkTodayGoal();
     }
 }

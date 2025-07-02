@@ -23,6 +23,12 @@ public class FirebaseHelper {
     private FirebaseFirestore db;
     private SimpleDateFormat dateFormat;
 
+    // Cache sistem
+    private int cachedTodayIntake = -1;
+    private String cachedDate = "";
+    private long lastCacheUpdate = 0;
+    private static final long CACHE_DURATION = 30000; // 30 sekundi
+
     public FirebaseHelper() {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -34,6 +40,11 @@ public class FirebaseHelper {
         String userId = user != null ? user.getUid() : null;
         Log.d("FirebaseHelper", "Current user ID: " + userId);
         return userId;
+    }
+
+    public boolean isUserLoggedIn() {
+        FirebaseUser currentUser = auth.getCurrentUser();
+        return currentUser != null;
     }
 
     public CompletableFuture<String> registerUser(String email, String password, String name) {
@@ -123,6 +134,7 @@ public class FirebaseHelper {
                 .set(intakeData)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("FirebaseHelper", "Water intake added successfully: " + amount + "ml");
+                    invalidateCache(); // Invalidate cache when new water is added
                     future.complete(intakeId);
                 })
                 .addOnFailureListener(e -> {
@@ -144,7 +156,19 @@ public class FirebaseHelper {
         }
 
         String today = dateFormat.format(new Date());
-        Log.d("FirebaseHelper", "=== GET TODAY WATER INTAKE ===");
+        long currentTime = System.currentTimeMillis();
+
+        // Provjeri cache
+        if (cachedTodayIntake != -1 &&
+                today.equals(cachedDate) &&
+                (currentTime - lastCacheUpdate) < CACHE_DURATION) {
+
+            Log.d("FirebaseHelper", "Returning cached intake: " + cachedTodayIntake + "ml");
+            future.complete(cachedTodayIntake);
+            return future;
+        }
+
+        Log.d("FirebaseHelper", "=== GET TODAY WATER INTAKE (FRESH) ===");
         Log.d("FirebaseHelper", "User ID: " + userId);
         Log.d("FirebaseHelper", "Today date: " + today);
 
@@ -160,23 +184,17 @@ public class FirebaseHelper {
 
                     for (com.google.firebase.firestore.QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         Long amount = document.getLong("amount");
-                        String docDate = document.getString("date");
-                        String docUserId = document.getString("userId");
-
-                        Log.d("FirebaseHelper", "Document ID: " + document.getId());
-                        Log.d("FirebaseHelper", "  Amount: " + amount);
-                        Log.d("FirebaseHelper", "  Date: " + docDate);
-                        Log.d("FirebaseHelper", "  UserId: " + docUserId);
-                        Log.d("FirebaseHelper", "  UserId matches: " + userId.equals(docUserId));
-                        Log.d("FirebaseHelper", "  Date matches: " + today.equals(docDate));
-
                         if (amount != null) {
                             totalAmount += amount.intValue();
-                            Log.d("FirebaseHelper", "Adding amount: " + amount + "ml, total now: " + totalAmount);
                         }
                     }
 
-                    Log.d("FirebaseHelper", "=== FINAL TODAY TOTAL: " + totalAmount + "ml ===");
+                    // Ažuriraj cache
+                    cachedTodayIntake = totalAmount;
+                    cachedDate = today;
+                    lastCacheUpdate = currentTime;
+
+                    Log.d("FirebaseHelper", "=== FINAL TODAY TOTAL: " + totalAmount + "ml (CACHED) ===");
                     future.complete(totalAmount);
                 })
                 .addOnFailureListener(e -> {
@@ -185,6 +203,13 @@ public class FirebaseHelper {
                 });
 
         return future;
+    }
+
+    public void invalidateCache() {
+        cachedTodayIntake = -1;
+        cachedDate = "";
+        lastCacheUpdate = 0;
+        Log.d("FirebaseHelper", "Cache invalidated");
     }
 
     public CompletableFuture<User> getUser() {
@@ -448,6 +473,7 @@ public class FirebaseHelper {
     }
 
     public void signOut() {
+        invalidateCache();
         auth.signOut();
         Log.d("FirebaseHelper", "User signed out");
     }

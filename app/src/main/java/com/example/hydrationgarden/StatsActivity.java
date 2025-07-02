@@ -239,7 +239,12 @@ public class StatsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("StatsActivity", "onResume - refreshing stats");
+        Log.d("StatsActivity", "onResume - NOT refreshing stats to prevent ANR");
+        // UKLONJEN showLoadingState() i loadStats() - poziva se samo u onCreate()
+    }
+
+    public void refreshStats() {
+        Log.d("StatsActivity", "Manually refreshing stats");
         showLoadingState();
         loadStats();
     }
