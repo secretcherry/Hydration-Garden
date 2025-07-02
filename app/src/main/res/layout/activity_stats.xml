@@ -61,7 +61,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0 ml"
-                            android:textColor="@color/primary"
+                            android:textColor="@color/sage_green"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
@@ -97,7 +97,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0 ml"
-                            android:textColor="@color/primary"
+                            android:textColor="@color/sage_green"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
@@ -141,7 +141,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0 ml"
-                            android:textColor="@color/primary"
+                            android:textColor="@color/sage_green"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
@@ -177,7 +177,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="2000 ml"
-                            android:textColor="@color/primary"
+                            android:textColor="@color/sage_green"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
@@ -217,7 +217,7 @@
                         android:layout_height="8dp"
                         android:max="100"
                         android:progress="0"
-                        android:progressTint="@color/primary" />
+                        android:progressTint="@color/water_progress" />
 
                     <TextView
                         android:id="@+id/tvGoalPercentage"
@@ -313,7 +313,7 @@
         android:layout_gravity="bottom"
         android:background="@color/surface"
         app:menu="@menu/bottom_navigation"
-        app:itemIconTint="@color/primary"
-        app:itemTextColor="@color/primary" />
+        app:itemIconTint="@color/sage_green"
+        app:itemTextColor="@color/sage_green" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

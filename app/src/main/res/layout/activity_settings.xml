@@ -31,7 +31,7 @@
                     android:layout_height="50dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@android:drawable/ic_menu_revert"
-                    app:tint="@color/primary"
+                    app:tint="@color/sage_green"
                     android:padding="12dp"
                     android:scaleType="fitCenter"
                     android:contentDescription="Natrag"
@@ -84,8 +84,8 @@
                     android:id="@+id/switchDarkTheme"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:thumbTint="@color/primary"
-                    app:trackTint="@color/primary" />
+                    app:thumbTint="@color/sage_green"
+                    app:trackTint="@color/sage_green" />
 
             </LinearLayout>
 
@@ -139,7 +139,8 @@
                         android:layout_marginEnd="4dp"
                         android:text="1.5L"
                         android:textSize="12sp"
-                        app:strokeColor="@color/primary" />
+                        app:strokeColor="@color/sage_green"
+                        android:textColor="@color/sage_green" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn2000ml"
@@ -150,7 +151,8 @@
                         android:layout_marginHorizontal="4dp"
                         android:text="2L"
                         android:textSize="12sp"
-                        app:strokeColor="@color/primary" />
+                        app:strokeColor="@color/sage_green"
+                        android:textColor="@color/sage_green" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn2500ml"
@@ -161,7 +163,8 @@
                         android:layout_marginHorizontal="4dp"
                         android:text="2.5L"
                         android:textSize="12sp"
-                        app:strokeColor="@color/primary" />
+                        app:strokeColor="@color/sage_green"
+                        android:textColor="@color/sage_green" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn3000ml"
@@ -172,7 +175,8 @@
                         android:layout_marginStart="4dp"
                         android:text="3L"
                         android:textSize="12sp"
-                        app:strokeColor="@color/primary" />
+                        app:strokeColor="@color/sage_green"
+                        android:textColor="@color/sage_green" />
 
                 </LinearLayout>
 
@@ -195,8 +199,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:hint="Cilj (ml)"
-                        app:boxStrokeColor="@color/primary"
-                        app:hintTextColor="@color/primary">
+                        app:boxStrokeColor="@color/sage_green"
+                        app:hintTextColor="@color/sage_green">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etCustomGoal"
@@ -212,9 +216,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="56dp"
                         android:layout_marginStart="8dp"
-                        android:backgroundTint="@color/primary"
+                        android:backgroundTint="@color/sage_green"
                         android:text="Postavi"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/button_text_primary"
                         app:cornerRadius="12dp" />
 
                 </LinearLayout>

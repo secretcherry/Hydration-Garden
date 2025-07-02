@@ -55,7 +55,7 @@
         android:layout_gravity="bottom"
         android:background="@color/surface"
         app:menu="@menu/bottom_navigation"
-        app:itemIconTint="@color/primary"
-        app:itemTextColor="@color/primary" />
+        app:itemIconTint="@color/sage_green"
+        app:itemTextColor="@color/sage_green" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

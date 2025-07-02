@@ -41,7 +41,7 @@
                     android:layout_marginEnd="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/settings"
-                    app:tint="@color/primary"
+                    app:tint="@color/sage_green"
                     android:padding="9dp"
                     android:scaleType="fitCenter"
                     android:contentDescription="Postavke" />
@@ -51,7 +51,7 @@
                     android:layout_height="50dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/baseline_logout_24"
-                    app:tint="@color/primary"
+                    app:tint="@color/sage_green"
                     android:padding="9dp"
                     android:scaleType="fitCenter"
                     android:contentDescription="Odjava" />
@@ -99,7 +99,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0ml"
-                                android:textColor="@color/primary"
+                                android:textColor="@color/sage_green"
                                 android:textSize="32sp"
                                 android:textStyle="bold" />
 
@@ -126,7 +126,7 @@
                                 android:layout_height="60dp"
                                 android:max="100"
                                 android:progress="0"
-                                android:progressTint="@color/primary" />
+                                android:progressTint="@color/water_progress" />
 
                             <TextView
                                 android:id="@+id/tvPercentage"
@@ -150,7 +150,7 @@
                         android:layout_marginTop="16dp"
                         android:max="100"
                         android:progress="0"
-                        android:progressTint="@color/primary" />
+                        android:progressTint="@color/water_progress" />
 
 
                     <com.google.android.material.button.MaterialButton
@@ -158,14 +158,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:layout_marginTop="20dp"
-                        android:backgroundTint="@color/primary"
+                        android:backgroundTint="@color/sage_green"
                         android:text="Dodaj vodu"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/button_text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         app:cornerRadius="12dp"
                         app:icon="@android:drawable/ic_input_add"
-                        app:iconTint="@android:color/white"
+                        app:iconTint="@color/button_text_primary"
                         android:contentDescription="@string/add_water" />
 
                 </LinearLayout>
@@ -237,7 +237,7 @@
         android:layout_gravity="bottom"
         android:background="@color/surface"
         app:menu="@menu/bottom_navigation"
-        app:itemIconTint="@color/primary"
-        app:itemTextColor="@color/primary" />
+        app:itemIconTint="@color/sage_green"
+        app:itemTextColor="@color/sage_green" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="24dp"
-    >
+    android:padding="24dp">
 
     <ImageView
         android:id="@+id/ivPlantLarge"
@@ -72,9 +71,9 @@
         android:id="@+id/btnClose"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:backgroundTint="@color/primary"
+        android:backgroundTint="@color/sage_green"
         android:text="Zatvori"
-        android:textColor="@android:color/white"
+        android:textColor="@color/button_text_primary"
         app:cornerRadius="12dp" />
 
 </LinearLayout>

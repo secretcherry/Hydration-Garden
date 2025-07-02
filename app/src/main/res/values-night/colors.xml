@@ -1,41 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary colors for dark theme - Deeper pastels -->
-    <color name="primary">#C4A5A5</color>
-    <color name="primary_dark">#A88888</color>
-    <color name="primary_light">#D4B8B8</color>
-    <color name="accent">#8FA076</color>
+    <!-- Primary colors for dark theme - Green like light mode -->
+    <color name="primary">#4CAF50</color>
+    <color name="primary_dark">#388E3C</color>
+    <color name="primary_light">#81C784</color>
+    <color name="accent">#66BB6A</color>
 
-    <!-- Background colors for dark theme -->
-    <color name="background_primary">#2C2626</color>
-    <color name="surface">#3A3232</color>
+    <!-- Background colors for dark theme - Clean dark grays -->
+    <color name="background_primary">#121212</color>
+    <color name="surface">#1E1E1E</color>
 
     <!-- Text colors for dark theme -->
-    <color name="text_primary">#F2E5E5</color>
-    <color name="text_secondary">#D4C4C4</color>
-    <color name="text_on_primary">#2C2626</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B3B3B3</color>
+    <color name="text_on_primary">#FFFFFF</color>
 
     <!-- Status colors for dark theme -->
-    <color name="error">#D4A5A5</color>
-    <color name="success">#8FA076</color>
-    <color name="warning">#E6C794</color>
+    <color name="error">#EF5350</color>
+    <color name="success">#66BB6A</color>
+    <color name="warning">#FFB74D</color>
 
     <!-- Plant colors for dark theme -->
-    <color name="plant_happy">#A5B68D</color>
-    <color name="plant_sad">#D4A5A5</color>
-    <color name="plant_neutral">#B8A8A8</color>
+    <color name="plant_happy">#66BB6A</color>
+    <color name="plant_sad">#EF5350</color>
+    <color name="plant_neutral">#9E9E9E</color>
 
     <!-- Button colors for dark theme -->
-    <color name="button_text_primary">#2C2626</color>
-    <color name="button_text_secondary">#C4A5A5</color>
+    <color name="button_text_primary">#FFFFFF</color>
+    <color name="button_text_secondary">#4CAF50</color>
 
-    <!-- Additional pastel colors for dark mode -->
-    <color name="pastel_cream">#4A453F</color>
-    <color name="sage_green">#8FA076</color>
-    <color name="light_sage">#A5B68D</color>
-    <color name="soft_pink">#C4A5A5</color>
+    <!-- Water and garden colors for dark theme -->
+    <color name="water_progress">#4CAF50</color>
+    <color name="water_progress_background">#2E2E2E</color>
 
-    <!-- Water progress colors -->
-    <color name="water_progress">#8FA076</color>
-    <color name="water_progress_background">#4A3E3E</color>
+    <!-- Accent colors for dark theme -->
+    <color name="pink_accent">#4CAF50</color>
+    <color name="light_pink">#2E2E2E</color>
+    <color name="green_accent">#66BB6A</color>
+    <color name="light_green">#1B2D1B</color>
+
+    <!-- Legacy color names for compatibility -->
+    <color name="sage_green">#4CAF50</color>
+    <color name="soft_pink">#4CAF50</color>
+    <color name="pastel_cream">#2E2E2E</color>
 </resources>
