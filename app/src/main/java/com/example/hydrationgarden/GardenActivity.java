@@ -28,6 +28,12 @@ public class GardenActivity extends AppCompatActivity implements PlantAdapter.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Hide action bar
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
         binding = ActivityGardenBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 

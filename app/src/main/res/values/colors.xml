@@ -1,31 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary colors -->
-    <color name="primary">#2E7D32</color>
-    <color name="primary_dark">#1B5E20</color>
-    <color name="primary_light">#66BB6A</color>
-    <color name="accent">#FF9800</color>
+    <!-- Primary colors - Pastel Pink Theme -->
+    <color name="primary">#E7CCCC</color>
+    <color name="primary_dark">#D4A5A5</color>
+    <color name="primary_light">#F2E5E5</color>
+    <color name="accent">#A5B68D</color>
 
     <!-- Background colors -->
-    <color name="background_primary">#F1F8E9</color>
+    <color name="background_primary">#FDF9F9</color>
     <color name="surface">#FFFFFF</color>
 
     <!-- Text colors -->
-    <color name="text_primary">#1B5E20</color>
-    <color name="text_secondary">#4CAF50</color>
-    <color name="text_on_primary">#FFFFFF</color>
+    <color name="text_primary">#5D4E4E</color>
+    <color name="text_secondary">#8B7B7B</color>
+    <color name="text_on_primary">#5D4E4E</color>
 
     <!-- Status colors -->
-    <color name="error">#D32F2F</color>
-    <color name="success">#388E3C</color>
-    <color name="warning">#F57C00</color>
+    <color name="error">#E8A5A5</color>
+    <color name="success">#A5B68D</color>
+    <color name="warning">#F4D4A7</color>
 
     <!-- Plant colors -->
-    <color name="plant_happy">#4CAF50</color>
-    <color name="plant_sad">#FF5722</color>
-    <color name="plant_neutral">#9E9E9E</color>
+    <color name="plant_happy">#C1CFA1</color>
+    <color name="plant_sad">#E8A5A5</color>
+    <color name="plant_neutral">#D4C4C4</color>
 
     <!-- Button colors -->
-    <color name="button_text_primary">#FFFFFF</color>
-    <color name="button_text_secondary">#2E7D32</color>
+    <color name="button_text_primary">#5D4E4E</color>
+    <color name="button_text_secondary">#E7CCCC</color>
+
+    <!-- Additional pastel colors -->
+    <color name="pastel_cream">#EDE8DC</color>
+    <color name="sage_green">#A5B68D</color>
+    <color name="light_sage">#C1CFA1</color>
+    <color name="soft_pink">#E7CCCC</color>
+
+    <!-- Water progress colors -->
+    <color name="water_progress">#A5B68D</color>
+    <color name="water_progress_background">#F2E5E5</color>
 </resources>
