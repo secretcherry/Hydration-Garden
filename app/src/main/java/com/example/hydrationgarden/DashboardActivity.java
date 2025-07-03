@@ -111,6 +111,14 @@ public class DashboardActivity extends AppCompatActivity {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         });
+
+        // NOVO: Dodaj click listener za "Tvoj virtualni vrt" karticu
+        binding.cardPlantPreview.setOnClickListener(v -> {
+            Log.d("Dashboard", "Plant preview card clicked - navigating to Garden");
+            Intent intent = new Intent(this, GardenActivity.class);
+            startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        });
     }
 
     private void showWaterInputDialog() {

@@ -172,11 +172,15 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Plant Preview Card -->
+            <!-- Plant Preview Card - SADA CLICKABLE -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardPlantPreview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
                 app:cardBackgroundColor="@color/surface"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp">
@@ -218,6 +222,14 @@
                             android:text="Biljke trebaju više vode..."
                             android:textColor="@color/text_primary"
                             android:textSize="16sp" />
+
+                        <!-- Dodaj strelicu da pokaže da je clickable -->
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_menu_more"
+                            app:tint="@color/text_secondary"
+                            android:contentDescription="Idi u vrt" />
 
                     </LinearLayout>
 
