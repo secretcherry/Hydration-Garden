@@ -172,7 +172,6 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Plant Preview Card - SADA CLICKABLE -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardPlantPreview"
                 android:layout_width="match_parent"
@@ -223,7 +222,7 @@
                             android:textColor="@color/text_primary"
                             android:textSize="16sp" />
 
-                        <!-- Dodaj strelicu da pokaže da je clickable -->
+
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"

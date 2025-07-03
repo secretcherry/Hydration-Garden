@@ -145,7 +145,7 @@ public class GardenActivity extends AppCompatActivity implements PlantAdapter.On
         String title, subtitle;
 
         if (isGoalAchieved) {
-            title = "Tvoj vrt cvjeta! 🌸";
+            title = "🌸 Tvoj vrt cvjeta! 🌸";
             subtitle = String.format("Sve biljke su sretne! Postigao si %d/%d ml (%d%%)",
                     currentIntake, dailyGoal, (currentIntake * 100) / dailyGoal);
         } else {
